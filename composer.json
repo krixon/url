@@ -1,0 +1,19 @@
+{
+  "name": "krixon/url",
+  "description": "URL value objects",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Krixon\\URL\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Kitty\\URL\\": "test"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.0"
+  }
+}
