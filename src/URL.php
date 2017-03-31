@@ -79,41 +79,62 @@ class URL
         $this->queryString        = $queryString;
         $this->fragmentIdentifier = $fragmentIdentifier;
     }
-    
-    
-    /**
-     * @param string $string
-     *
-     * @return static
-     * @throws \InvalidArgumentException
-     */
-    public static function fromString($string)
-    {
-        try {
-            
-            if ($values = parse_url($string)) {
-                
-                $scheme   = isset($values['scheme'])   ? new Scheme($values['scheme'])               : null;
-                $host     = isset($values['host'])     ? $values['host']                             : null;
-                $user     = isset($values['user'])     ? $values['user']                             : null;
-                $pass     = isset($values['pass'])     ? $values['pass']                             : null;
-                $path     = isset($values['path'])     ? new Path($values['path'])                   : null;
-                $port     = isset($values['port'])     ? new PortNumber($values['port'])             : null;
-                $query    = isset($values['query'])    ? new QueryString($values['query'])           : null;
-                $fragment = isset($values['fragment']) ? new FragmentIdentifier($values['fragment']) : null;
-                
-                return new static($scheme, $host, $user, $pass, $path, $port, $query, $fragment);
-            }
-            
-        } catch (\Exception $e) {
-            // Squash.
-        }
 
-        throw new \InvalidArgumentException('Invalid URL string.', 0, $e ?? null);
-    }
-    
-    
-    /**
+
+	/**
+	 * @param string $string
+	 *
+	 * @return static
+	 * @throws \InvalidArgumentException
+	 */
+	public static function fromString($string)
+	{
+		try {
+
+			if ($values = parse_url($string)) {
+				return self::fromArray($values);
+			}
+
+		} catch (\Exception $e) {
+			// Squash.
+		}
+
+		throw new \InvalidArgumentException('Invalid URL string.', 0, !empty($e) ? $e : null);
+
+	}
+
+
+	/**
+	 * @param [] $array
+	 *
+	 * @return static
+	 * @throws \InvalidArgumentException
+	 */
+	public static function fromArray($values)
+	{
+		try {
+
+			$scheme   = isset($values['scheme'])   ? new Scheme($values['scheme'])               : null;
+			$host     = isset($values['host'])     ? $values['host']                             : null;
+			$user     = isset($values['user'])     ? $values['user']                             : null;
+			$pass     = isset($values['pass'])     ? $values['pass']                             : null;
+			$path     = isset($values['path'])     ? new Path($values['path'])                   : null;
+			$port     = isset($values['port'])     ? new PortNumber($values['port'])             : null;
+			$query    = isset($values['query'])    ? new QueryString($values['query'])           : null;
+			$fragment = isset($values['fragment']) ? new FragmentIdentifier($values['fragment']) : null;
+
+			return new static($scheme, $host, $user, $pass, $path, $port, $query, $fragment);
+
+		} catch (\Exception $e) {
+			// Squash.
+		}
+
+		throw new \InvalidArgumentException('Invalid URL array.', 0, !empty($e) ? $e : null);
+
+	}
+
+
+	/**
      * @return string
      */
     public function __toString()
