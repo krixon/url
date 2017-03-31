@@ -24,6 +24,8 @@ class PortNumber
         if (!filter_var($value, FILTER_VALIDATE_INT, $options)) {
             throw new \InvalidArgumentException('Invalid port number.');
         }
+
+        $this->number = $value;
     }
     
     
