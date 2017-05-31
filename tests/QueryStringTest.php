@@ -27,6 +27,9 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
             ['foo=bar'],
             ['?foo=bar'],
             ['?foo=bar&bar=baz'],
+            ['?foo=bar&bar=ba?z'],  // Only the first question mark is significant, others are literals.
+            ['?foo=b?ar&bar=baz'],  // Only the first question mark is significant, others are literals.
+            ['?foo=b?ar&bar=ba?z'], // Only the first question mark is significant, others are literals.
         ];
     }
 }

@@ -16,7 +16,7 @@ class QueryString
     {
         $value = '?' . ltrim($value, '?');
         
-        if (!preg_match('/^\?([\w\.\-\[\]~&%+]+(=([\w\.\-~&%+]+)?)?)*$/', $value)) {
+        if (!preg_match('/^\?([\w\.\-\[\]~&%+?]+(=([\w\.\-~&%+?]+)?)?)*$/', $value)) {
             throw new \InvalidArgumentException('Invalid query string.');
         }
         
