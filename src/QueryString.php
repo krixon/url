@@ -46,4 +46,21 @@ class QueryString
         
         return $data;
     }
+
+
+    /**
+     * Returns a new instance which includes the specified parameter.
+     *
+     * @param string $parameter
+     * @param string $value
+     *
+     * @return static
+     */
+    public function withAddedParameter(string $parameter, string $value)
+    {
+        $string  = $this->value;
+        $string .= '&' . http_build_query([$parameter => $value], '', '&');
+
+        return new static(ltrim($string, '&'));
+    }
 }

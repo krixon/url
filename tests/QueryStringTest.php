@@ -32,4 +32,30 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
             ['?foo=b?ar&bar=ba?z'], // Only the first question mark is significant, others are literals.
         ];
     }
+
+
+    /**
+     * @param string $original
+     * @param string $parameter
+     * @param string $value
+     * @param string $expected
+     *
+     * @dataProvider withAddedParameterProvider
+     */
+    public function testWithAddedParameter(string $original, string $parameter, string $value, string $expected)
+    {
+        $original = new QueryString($original);
+        $new      = $original->withAddedParameter($parameter, $value);
+
+        static::assertSame($expected, $new->toString());
+    }
+
+
+    public function withAddedParameterProvider()
+    {
+        return [
+            ['?foo=bar', 'name', 'lister', '?foo=bar&name=lister'],
+            ['?foo=bar', 'foo', 'bar', '?foo=bar&foo=bar'],
+        ];
+    }
 }
