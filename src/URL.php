@@ -349,7 +349,8 @@ class URL
 
         $instance = clone $this;
 
-        $instance->port = null;
+        $instance->port   = null;
+        $instance->string = null;
 
         return $instance;
     }
