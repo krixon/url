@@ -4,6 +4,22 @@ namespace Krixon\URL;
 
 class URL
 {
+    const COUNTRY_SECOND_LEVEL_DOMAINS = [
+        // Australia
+        '.asn.au', '.com.au', '.net.au', '.id.au', '.org.au', '.edu.au', '.gov.au', '.csiro.au', '.act.au', '.nsw.au',
+        '.nt.au', '.qld.au', '.sa.au', '.tas.au', '.vlc.au', '.wa.au',
+        // UK
+        '.co.uk', '.org.uk', '.me.uk', '.ltd.uk', '.plc.uk', '.net.uk', '.sch.uk', '.ac.uk', '.gov.uk', '.mod.uk',
+        '.mil.uk', '.nhs.uk', '.police.uk',
+        // USA
+        '.al.us', '.ak.us', '.az.us', '.ar.us', '.ca.us', '.co.us', '.ct.us', '.de.us', '.dc.us', '.fl.us', '.ga.us',
+        '.hi.us', '.id.us', '.il.us', '.in.us', '.ia.us', '.ks.us', '.ky.us', '.la.us', '.me.us', '.md.us', '.ma.us',
+        '.mi.us', '.mn.us', '.ms.us', '.mo.us', '.mt.us', '.ne.us', '.nv.us', '.nh.us', '.nj.us', '.nm.us', '.ny.us',
+        '.nc.us', '.nd.us', '.oh.us', '.ok.us', '.or.us', '.pa.us', '.ri.us', '.sc.us', '.sd.us', '.tn.us', '.tx.us',
+        '.ut.us', '.vt.us', '.va.us', '.wa.us', '.wv.us', '.wi.us', '.wy.us', '.as.us', '.gu.us', '.mp.us', '.pr.us',
+        '.vi.us', '.fed.us', '.isa.us', '.nsn.us', '.dni.us', '.kids.us',
+    ];
+
     /**
      * @var Scheme
      */
@@ -248,6 +264,33 @@ class URL
     {
         return $this->host;
     }
+
+
+    /**
+     * Makes an educated guess at the subdomain which appears below the hostname.
+     *
+     * For example, given the URL "http://www.example.com", this will return "www" and given
+     * "http://foo.bar.example.com", this will return "foo.bar".
+     *
+     * There is some support for special second-level domain. For example, given "http://www.example.co.uk", this
+     * will return "www", taking into account the ".co.uk" second-level. However this behaviour is not perfect; any
+     * subdomain returned should be considered a best-guess only.
+     *
+     * @return string
+     */
+    public function subDomain()
+    {
+        $parts = explode('.', $this->host);
+
+        $top    = array_pop($parts);
+        $second = array_pop($parts);
+
+        if (strlen($second) === 2 || in_array("$second.$top", self::COUNTRY_SECOND_LEVEL_DOMAINS, true)) {
+            array_pop($parts);
+        }
+
+        return implode('.', $parts);
+    }
     
     
     /**
@@ -292,6 +335,23 @@ class URL
     public function hasPort()
     {
         return null !== $this->port();
+    }
+
+
+    /**
+     * @return static
+     */
+    public function withoutPort()
+    {
+        if (!$this->hasPort()) {
+            return $this;
+        }
+
+        $instance = clone $this;
+
+        $instance->port = null;
+
+        return $instance;
     }
     
     

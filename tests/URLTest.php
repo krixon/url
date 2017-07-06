@@ -27,6 +27,38 @@ class URLTest extends \PHPUnit_Framework_TestCase
             ['http://www.example.com/some/path?foo=bar#baz'],
         ];
     }
+
+
+    /**
+     * @param string $url
+     * @param string $expected
+     *
+     * @dataProvider subDomainProvider
+     */
+    public function testCanExtractSubDomain($url, $expected)
+    {
+        $url = URL::fromString($url);
+
+        $this->assertSame($expected, $url->subDomain());
+    }
+
+
+    public function subDomainProvider()
+    {
+        return [
+            ['http://www.example.com', 'www'],
+            ['http://www.foo.example.com', 'www.foo'],
+            ['http://www.foo.bar.example.com', 'www.foo.bar'],
+            ['http://localhost', ''],
+            ['http://example.com', ''],
+            ['http://*.com', ''],
+            ['http://*.example.com', '*'],
+            ['http://*.foo.example.com', '*.foo'],
+            ['http://*.co.uk', ''],
+            ['http://*.example.co.uk', '*'],
+            ['http://*.foo.example.co.uk', '*.foo'],
+        ];
+    }
     
     
     /**
