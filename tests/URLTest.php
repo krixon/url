@@ -8,7 +8,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @param $string
-     * 
+     *
      * @dataProvider validURLStringProvider
      */
     public function testCanCreateInstanceFromString($string)
@@ -19,8 +19,8 @@ class URLTest extends \PHPUnit_Framework_TestCase
             $this->fail("Cannot create URL instance from '$string': " . $e->getMessage());
         }
     }
-    
-    
+
+
     public function validURLStringProvider()
     {
         return [
@@ -59,8 +59,8 @@ class URLTest extends \PHPUnit_Framework_TestCase
             ['http://*.foo.example.co.uk', '*.foo'],
         ];
     }
-    
-    
+
+
     /**
      * @param $string
      *
@@ -69,7 +69,52 @@ class URLTest extends \PHPUnit_Framework_TestCase
     public function testCanConvertToString($string)
     {
         $url = URL::fromString($string);
-        
+
         $this->assertSame($string, $url->toString());
+    }
+
+
+    public function testCanRemoveQueryString()
+    {
+        $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
+        $removed  = $url->withoutQueryString();
+        $expected = 'http://foo.example.com:80#foo';
+
+        $this->assertSame($expected, $removed->toString());
+
+        // Removing again should have no effect.
+        $removed = $removed->withoutQueryString();
+
+        $this->assertSame($expected, $removed->toString());
+    }
+
+
+    public function testCanRemoveFragmentIdentifier()
+    {
+        $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
+        $removed  = $url->withoutFragmentIdentifier();
+        $expected = 'http://foo.example.com:80?foo=bar&bar=baz';
+
+        $this->assertSame($expected, $removed->toString());
+
+        // Removing again should have no effect.
+        $removed = $removed->withoutFragmentIdentifier();
+
+        $this->assertSame($expected, $removed->toString());
+    }
+
+
+    public function testCanRemovePort()
+    {
+        $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
+        $removed  = $url->withoutPort();
+        $expected = 'http://foo.example.com?foo=bar&bar=baz#foo';
+
+        $this->assertSame($expected, $removed->toString());
+
+        // Removing again should have no effect.
+        $removed = $removed->withoutPort();
+
+        $this->assertSame($expected, $removed->toString());
     }
 }

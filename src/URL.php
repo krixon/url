@@ -97,6 +97,14 @@ class URL
     }
 
 
+    public function __clone()
+    {
+        // Ensure the cached string representation is always cleared to avoid incorrect results when calling
+        // toString() on the new instance.
+        $this->string = null;
+    }
+
+
 	/**
 	 * @param string $string
 	 *
@@ -349,8 +357,7 @@ class URL
 
         $instance = clone $this;
 
-        $instance->port   = null;
-        $instance->string = null;
+        $instance->port = null;
 
         return $instance;
     }
@@ -363,25 +370,52 @@ class URL
     {
         return $this->queryString;
     }
+
+
+    /**
+     * Determines if the URL contains a query string.
+     *
+     * @return bool
+     */
+    public function hasQueryString()
+    {
+        return null !== $this->queryString;
+    }
     
     
     /**
+     * Returns a version of this URL with the specified query string component.
+     *
      * @param QueryString $queryString
      *
      * @return static
      */
     public function withQueryString(QueryString $queryString)
     {
-        return new static(
-            $this->scheme(),
-            $this->host(),
-            $this->user(),
-            $this->password(),
-            $this->path(),
-            $this->port(),
-            $queryString,
-            $this->fragmentIdentifier()
-        );
+        $instance = clone $this;
+
+        $instance->queryString = $queryString;
+
+        return $instance;
+    }
+
+
+    /**
+     * Returns a version of this URL with no query string component.
+     *
+     * @return static
+     */
+    public function withoutQueryString()
+    {
+        if (!$this->hasQueryString()) {
+            return $this;
+        }
+
+        $instance = clone $this;
+
+        $instance->queryString = null;
+
+        return $instance;
     }
     
     
@@ -391,6 +425,36 @@ class URL
     public function fragmentIdentifier()
     {
         return $this->fragmentIdentifier;
+    }
+
+
+    /**
+     * Determines if this URL includes a fragment identifier component.
+     *
+     * @return bool
+     */
+    public function hasFragmentIdentifier()
+    {
+        return null !== $this->fragmentIdentifier;
+    }
+
+
+    /**
+     * Returns a version of this URL with no fragment identifier component.
+     *
+     * @return static
+     */
+    public function withoutFragmentIdentifier()
+    {
+        if (!$this->hasFragmentIdentifier()) {
+            return $this;
+        }
+
+        $instance = clone $this;
+
+        $instance->fragmentIdentifier = null;
+
+        return $instance;
     }
     
     
