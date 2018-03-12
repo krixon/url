@@ -115,7 +115,11 @@ class URL
 	{
 		try {
 
-			if ($values = parse_url($string)) {
+			if (
+				(filter_var($string, FILTER_VALIDATE_URL,
+						FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED) !== false) &&
+				($values = parse_url($string))
+			) {
 				return self::fromArray($values);
 			}
 
@@ -138,8 +142,16 @@ class URL
 	{
 		try {
 
-			$scheme   = isset($values['scheme'])   ? new Scheme($values['scheme'])               : null;
-			$host     = isset($values['host'])     ? $values['host']                             : null;
+			if (empty($values['scheme'])) {
+				throw new \Exception('No scheme provided for the URL.');
+			}
+			if (empty($values['host'])) {
+				throw new \Exception('No host provided for the URL.');
+			}
+
+			$scheme   = new Scheme($values['scheme']);
+			$host     = $values['host'];
+
 			$user     = isset($values['user'])     ? $values['user']                             : null;
 			$pass     = isset($values['pass'])     ? $values['pass']                             : null;
 			$path     = isset($values['path'])     ? new Path($values['path'])                   : null;
@@ -208,7 +220,7 @@ class URL
     /**
      * Determines if this URL starts with another URL.
      * 
-     * For example "http://example.com/bar/baz" starts with "http", "http://example.", "http://example.com/bar" etc. 
+     * For example "http://example.com/bar/baz" starts with "http", "http://example.com", "http://example.com/bar" etc. 
      * 
      * @param URL $other
      *
