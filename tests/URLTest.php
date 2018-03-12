@@ -52,16 +52,34 @@ class URLTest extends \PHPUnit_Framework_TestCase
 			],
 			'Two sub-domains' => [
 				'http://www.foo.example.com',
-				'www.foo'],
+				'www.foo'
+			],
 			'Three sub-domains' => [
 				'http://www.foo.bar.example.com',
-				'www.foo.bar'],
+				'www.foo.bar'
+			],
 			'No sub-domain single' => [
 				'http://localhost', 
 				''
 			],
 			'No sub-domain double' => [
 				'http://example.com', 
+				''
+			],
+			'One sub-domain with country 2nd level' => [
+				'http://www.example.co.uk',
+				'www'
+			],
+			'Two sub-domains with country 2nd level' => [
+				'http://www.foo.example.co.uk',
+				'www.foo'
+			],
+			'Three sub-domains with country 2nd level' => [
+				'http://www.foo.bar.example.co.uk',
+				'www.foo.bar'
+			],
+			'No sub-domain with country 2nd level' => [
+				'http://example.co.uk', 
 				''
 			],
         ];
