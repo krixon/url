@@ -40,11 +40,22 @@ class QueryString
      */
     public function toArray()
     {
+        $parameters = [];
+
         $value = ltrim($this->toString(), '?');
-        
-        parse_str($value, $data);
-        
-        return $data;
+
+        // Convert all the parameter keys into their respective hex values so that dots and spaces won't be converted into
+        // underscores by the native parse_str function.
+        $queryString = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function ($match) {
+            return bin2hex(urldecode($match[0]));
+        }, $value);
+
+        parse_str($queryString, $parameters);
+
+        // Convert all the keys back from to their original form.
+        $keys = array_map('hex2bin', array_keys($parameters));
+
+        return array_combine($keys, $parameters);
     }
 
 

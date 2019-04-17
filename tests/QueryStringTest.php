@@ -58,4 +58,28 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
             ['?foo=bar', 'foo', 'bar', '?foo=bar&foo=bar'],
         ];
     }
+
+
+    /**
+     * @dataProvider canBeCastToArrayExpectationsProvider
+     */
+    public function testCanBeCastToArray(string $queryString, array $expected)
+    {
+        $queryString = new QueryString($queryString);
+
+        static::assertSame($expected, $queryString->toArray());
+    }
+
+
+    public function canBeCastToArrayExpectationsProvider() : array
+    {
+        return [
+            ['?foo=bar&bar=baz', ['foo' => 'bar', 'bar' => 'baz']],
+            ['?foo.bar=baz&foo.baz=bar', ['foo.bar' => 'baz', 'foo.baz' => 'bar']],
+            ['?foo%20bar=baz', ['foo bar' => 'baz']],
+            ['?foo=bar&foo%20bar=foo%20bar%20baz', ['foo' => 'bar', 'foo bar' => 'foo bar baz']],
+            ['?foo[]=1&foo[]=2&bar=2', ['foo' => ['1', '2'], 'bar' => '2']],
+            ['?%C4%95=%C4%95&bar=2', ['ĕ' => 'ĕ', 'bar' => '2']],
+        ];
+    }
 }
