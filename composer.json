@@ -8,6 +8,9 @@
       "Krixon\\URL\\": "src"
     }
   },
+  "scripts": {
+    "test": "phpunit"
+  },
   "autoload-dev": {
     "psr-4": {
       "Kitty\\URL\\": "test"

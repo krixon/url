@@ -31,3 +31,27 @@ $ git clone https://github.com/krixon/url.git
 # SSH
 $ git clone git@github.com:krixon/url.git
 ```
+## Development
+
+### Build Image and Run Container
+
+Note: If your host machine's user does not have an ID of 1000, run the following command from the project root
+directory:
+
+```bash
+echo "DEV_UID=$(id -u)" > .env
+```
+This ensures that any files created in mounted directories have the correct permissions. It will also cause the host
+user's SSH keys and Composer cache to be used inside the container.
+
+Build image:
+
+`$ docker-compose build`
+
+Install dependencies:
+
+`$ docker-compose run --rm library composer install`
+
+### Run the tests
+
+`$ docker-compose run --rm library composer test`
