@@ -1,0 +1,12 @@
+version: "3.1"
+
+services:
+  library:
+    build:
+      context: ./docker/library
+      args:
+        UID: ${DEV_UID:-1000}
+    volumes:
+      - ./:/src
+      - ${COMPOSER_DIR:-~/.composer}:/home/dev/.composer
+      - ${SSH_DIR:-~/.ssh}:/home/dev/.ssh
