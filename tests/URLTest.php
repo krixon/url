@@ -46,24 +46,38 @@ class URLTest extends \PHPUnit_Framework_TestCase
     public function subDomainProvider()
     {
         return [
-			'One sub-domain' => [
-				'http://www.example.com',
-				'www'
-			],
-			'Two sub-domains' => [
-				'http://www.foo.example.com',
-				'www.foo'],
-			'Three sub-domains' => [
-				'http://www.foo.bar.example.com',
-				'www.foo.bar'],
-			'No sub-domain single' => [
-				'http://localhost', 
-				''
-			],
-			'No sub-domain double' => [
-				'http://example.com', 
-				''
-			],
+            'One sub-domain' => [
+                'http://www.example.com',
+                'www',
+            ],
+            'Two sub-domains' => [
+                'http://www.foo.example.com',
+                'www.foo',
+            ],
+            'Three sub-domains' => [
+                'http://www.foo.bar.example.com',
+                'www.foo.bar',
+            ],
+            'Two part top level domain' => [
+                'http://www.foo.bar.example.co.uk',
+                'www.foo.bar',
+            ],
+            'Two part top level domain 2' => [
+                'http://www.foo.bar.example.org.uk',
+                'www.foo.bar',
+            ],
+            'Two part top level domain 3' => [
+                'http://www.foo.bar.example.police.uk',
+                'www.foo.bar',
+            ],
+            'No sub-domain single' => [
+                'http://localhost',
+                '',
+            ],
+            'No sub-domain double' => [
+                'http://example.com',
+                '',
+            ],
         ];
     }
 

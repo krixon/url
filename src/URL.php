@@ -305,7 +305,7 @@ class URL
         $top    = array_pop($parts);
         $second = array_pop($parts);
 
-        if (strlen($second) === 2 || in_array("$second.$top", self::COUNTRY_SECOND_LEVEL_DOMAINS, true)) {
+        if (strlen($second) === 2 || in_array(".$second.$top", self::COUNTRY_SECOND_LEVEL_DOMAINS, true)) {
             array_pop($parts);
         }
 
