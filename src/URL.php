@@ -257,7 +257,9 @@ class URL
      */
     public function startsWith(URL $other) : bool
     {
-        return strcasecmp(substr($this, 0, strlen($other)), $other) === 0;
+        $other = $other->toString();
+
+        return strcasecmp(substr($this->toString(), 0, strlen($other)), $other) === 0;
     }
 
 

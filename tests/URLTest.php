@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Krixon\URL\Test\URL;
 
 use InvalidArgumentException;
+use Krixon\URL\QueryString;
 use Krixon\URL\URL;
 use PHPUnit\Framework\TestCase;
 use function sprintf;
@@ -96,6 +97,7 @@ class URLTest extends TestCase
         $url = URL::fromString($string);
 
         $this->assertSame($string, $url->toString());
+        $this->assertSame($string, (string) $url);
     }
 
 
@@ -141,5 +143,162 @@ class URLTest extends TestCase
         $removed = $removed->withoutPort();
 
         $this->assertSame($expected, $removed->toString());
+    }
+
+
+    /**
+     * @dataProvider canDetermineIfEqualExpectationsProvider
+     */
+    public function testCanDetermineIfEqual(URL $url, URL $other, bool $expected) : void
+    {
+        $this->assertSame($url->equals($other), $expected);
+    }
+
+
+    /**
+     * @return mixed[]
+     */
+    public function canDetermineIfEqualExpectationsProvider() : array
+    {
+        return [
+            [
+                URL::fromString('http://foo.example.com'),
+                URL::fromString('http://foo.example.com'),
+                true,
+            ],
+            [
+                URL::fromString('https://foo.example.com'),
+                URL::fromString('https://foo.example.com'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com:8080'),
+                URL::fromString('http://foo.example.com:8080'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com/foo/bar'),
+                URL::fromString('http://foo.example.com/foo/bar'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com?foo=1&foo=2'),
+                URL::fromString('http://foo.example.com?foo=1&foo=2'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com#start'),
+                URL::fromString('http://foo.example.com#start'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com:8081/foo/bar?foo=1&bar=2#start'),
+                URL::fromString('http://foo.example.com:8081/foo/bar?foo=1&bar=2#start'),
+                true,
+            ],
+            [
+                URL::fromString('https://foo.example.com'),
+                URL::fromString('http://foo.example.com'),
+                false,
+            ],
+            [
+                URL::fromString('https://foo.example.com:8080'),
+                URL::fromString('https://foo.example.com:8081'),
+                false,
+            ],
+            [
+                URL::fromString('https://foo.example.com/foo/bar'),
+                URL::fromString('https://foo.example.com/foo/baz'),
+                false,
+            ],
+            [
+                URL::fromString('http://foo.example.com?foo=1&foo=2'),
+                URL::fromString('http://foo.example.com?foo=1&foo=3'),
+                false,
+            ],
+            [
+                URL::fromString('http://foo.example.com#start'),
+                URL::fromString('http://foo.example.com#end'),
+                false,
+            ],
+        ];
+    }
+
+    public function testCanAddQueryString() : void
+    {
+        // assert that a new query string can be added.
+
+        $url = URL::fromString('http://foo.example.com');
+
+        $this->assertNull($url->queryString());
+
+        $url = $url->withQueryString(new QueryString('foo=1&bar=2'));
+
+        $this->assertSame($url->queryString()->toArray(), ['foo' => '1', 'bar' => '2']);
+
+        // assert that an existing query string is replaced
+
+        $url = $url->withQueryString(new QueryString('baz=1'));
+
+        $this->assertSame($url->queryString()->toArray(), ['baz' => '1']);
+    }
+
+
+    public function testCanDetermineIfHasPath() : void
+    {
+        $urlWithPath    = URL::fromString('http://foo.example.com/foo/bar');
+        $urlWithoutPath = URL::fromString('http://foo.example.com');
+
+        $this->assertTrue($urlWithPath->hasPath());
+        $this->assertFalse($urlWithoutPath->hasPath());
+    }
+
+
+    public function testReturnsExpectedPassword() : void
+    {
+        $urlWithPassword    = URL::fromString('http://foo:mypassword@foo.example.com');
+        $urlWithoutPassword = URL::fromString('http://foo.example.com');
+
+        $this->assertSame('mypassword', $urlWithPassword->password());
+        $this->assertNull($urlWithoutPassword->password());
+    }
+
+
+    public function testCanDetermineIfHasPassword() : void
+    {
+        $urlWithPassword    = URL::fromString('http://foo:mypassword@foo.example.com');
+        $urlWithoutPassword = URL::fromString('http://foo.example.com');
+
+        $this->assertTrue($urlWithPassword->hasPassword());
+        $this->assertFalse($urlWithoutPassword->hasPassword());
+    }
+
+
+    /**
+     * @dataProvider canDetermineIfStartsWithExpectationsProvider
+     */
+    public function testCanDetermineIfStartsWith(URL $url, URL $other, bool $expected) : void
+    {
+        $this->assertSame($url->startsWith($other), $expected);
+    }
+
+
+    /**
+     * @return mixed[]
+     */
+    public function canDetermineIfStartsWithExpectationsProvider() : array
+    {
+        return [
+            [
+                URL::fromString('http://foo.example.com/foo/bar/baz'),
+                URL::fromString('http://foo.example.com'),
+                true,
+            ],
+            [
+                URL::fromString('http://foo.example.com/foo/bar/baz'),
+                URL::fromString('http://bar.example.com'),
+                false,
+            ],
+        ];
     }
 }
