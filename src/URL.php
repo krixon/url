@@ -1,90 +1,142 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL;
+
+use InvalidArgumentException;
+use Throwable;
+use const FILTER_VALIDATE_URL;
+use function array_pop;
+use function explode;
+use function filter_var;
+use function implode;
+use function in_array;
+use function is_array;
+use function parse_url;
+use function sprintf;
+use function strcasecmp;
+use function strlen;
+use function substr;
 
 class URL
 {
-    const COUNTRY_SECOND_LEVEL_DOMAINS = [
+    public const COUNTRY_SECOND_LEVEL_DOMAINS = [
         // Australia
-        '.asn.au', '.com.au', '.net.au', '.id.au', '.org.au', '.edu.au', '.gov.au', '.csiro.au', '.act.au', '.nsw.au',
-        '.nt.au', '.qld.au', '.sa.au', '.tas.au', '.vlc.au', '.wa.au',
+        '.asn.au',
+        '.com.au',
+        '.net.au',
+        '.id.au',
+        '.org.au',
+        '.edu.au',
+        '.gov.au',
+        '.csiro.au',
+        '.act.au',
+        '.nsw.au',
+        '.nt.au',
+        '.qld.au',
+        '.sa.au',
+        '.tas.au',
+        '.vlc.au',
+        '.wa.au',
         // UK
-        '.co.uk', '.org.uk', '.me.uk', '.ltd.uk', '.plc.uk', '.net.uk', '.sch.uk', '.ac.uk', '.gov.uk', '.mod.uk',
-        '.mil.uk', '.nhs.uk', '.police.uk',
+        '.co.uk',
+        '.org.uk',
+        '.me.uk',
+        '.ltd.uk',
+        '.plc.uk',
+        '.net.uk',
+        '.sch.uk',
+        '.ac.uk',
+        '.gov.uk',
+        '.mod.uk',
+        '.mil.uk',
+        '.nhs.uk',
+        '.police.uk',
         // USA
-        '.al.us', '.ak.us', '.az.us', '.ar.us', '.ca.us', '.co.us', '.ct.us', '.de.us', '.dc.us', '.fl.us', '.ga.us',
-        '.hi.us', '.id.us', '.il.us', '.in.us', '.ia.us', '.ks.us', '.ky.us', '.la.us', '.me.us', '.md.us', '.ma.us',
-        '.mi.us', '.mn.us', '.ms.us', '.mo.us', '.mt.us', '.ne.us', '.nv.us', '.nh.us', '.nj.us', '.nm.us', '.ny.us',
-        '.nc.us', '.nd.us', '.oh.us', '.ok.us', '.or.us', '.pa.us', '.ri.us', '.sc.us', '.sd.us', '.tn.us', '.tx.us',
-        '.ut.us', '.vt.us', '.va.us', '.wa.us', '.wv.us', '.wi.us', '.wy.us', '.as.us', '.gu.us', '.mp.us', '.pr.us',
-        '.vi.us', '.fed.us', '.isa.us', '.nsn.us', '.dni.us', '.kids.us',
+        '.al.us',
+        '.ak.us',
+        '.az.us',
+        '.ar.us',
+        '.ca.us',
+        '.co.us',
+        '.ct.us',
+        '.de.us',
+        '.dc.us',
+        '.fl.us',
+        '.ga.us',
+        '.hi.us',
+        '.id.us',
+        '.il.us',
+        '.in.us',
+        '.ia.us',
+        '.ks.us',
+        '.ky.us',
+        '.la.us',
+        '.me.us',
+        '.md.us',
+        '.ma.us',
+        '.mi.us',
+        '.mn.us',
+        '.ms.us',
+        '.mo.us',
+        '.mt.us',
+        '.ne.us',
+        '.nv.us',
+        '.nh.us',
+        '.nj.us',
+        '.nm.us',
+        '.ny.us',
+        '.nc.us',
+        '.nd.us',
+        '.oh.us',
+        '.ok.us',
+        '.or.us',
+        '.pa.us',
+        '.ri.us',
+        '.sc.us',
+        '.sd.us',
+        '.tn.us',
+        '.tx.us',
+        '.ut.us',
+        '.vt.us',
+        '.va.us',
+        '.wa.us',
+        '.wv.us',
+        '.wi.us',
+        '.wy.us',
+        '.as.us',
+        '.gu.us',
+        '.mp.us',
+        '.pr.us',
+        '.vi.us',
+        '.fed.us',
+        '.isa.us',
+        '.nsn.us',
+        '.dni.us',
+        '.kids.us',
     ];
 
-    /**
-     * @var Scheme
-     */
     private $scheme;
-    
-    /**
-     * @var string
-     */
     private $host;
-    
-    /**
-     * @var string|null
-     */
     private $user;
-    
-    /**
-     * @var string|null
-     */
     private $password;
-    
-    /**
-     * @var Path|null
-     */
     private $path;
-    
-    /**
-     * @var PortNumber|null
-     */
     private $port;
-    
-    /**
-     * @var QueryString|null
-     */
     private $queryString;
-    
-    /**
-     * @var FragmentIdentifier|null
-     */
     private $fragmentIdentifier;
-    
-    /**
-     * @var string
-     */
     private $string;
-    
-    
-    /**
-     * @param Scheme                  $scheme
-     * @param string                  $host
-     * @param string|null             $user
-     * @param string|null             $password
-     * @param Path|null               $path
-     * @param PortNumber|null         $port
-     * @param QueryString|null        $queryString
-     * @param FragmentIdentifier|null $fragmentIdentifier
-     */
+
+
     public function __construct(
         Scheme $scheme,
-        $host,
-        $user = null,
-        $password = null,
-        Path $path = null,
-        PortNumber $port = null,
-        QueryString $queryString = null,
-        FragmentIdentifier $fragmentIdentifier = null
+        string $host,
+        ?string $user = null,
+        ?string $password = null,
+        ?Path $path = null,
+        ?PortNumber $port = null,
+        ?QueryString $queryString = null,
+        ?FragmentIdentifier $fragmentIdentifier = null
     ) {
         $this->scheme             = $scheme;
         $this->host               = $host;
@@ -105,91 +157,72 @@ class URL
     }
 
 
-	/**
-	 * @param string $string
-	 *
-	 * @return static
-	 * @throws \InvalidArgumentException
-	 */
-	public static function fromString($string)
-	{
-		try {
+    public static function fromString(string $string) : self
+    {
+        $isValid        = filter_var($string, FILTER_VALIDATE_URL);
+        $invalidMessage =  'Invalid URL string.';
 
-			if (
-				(filter_var($string, FILTER_VALIDATE_URL,
-						FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED) !== false) &&
-				($values = parse_url($string))
-			) {
-				return self::fromArray($values);
-			}
+        if (!$isValid) {
+            throw new InvalidArgumentException($invalidMessage);
+        }
 
-		} catch (\Exception $e) {
-			// Squash.
-		}
+        $parts = parse_url($string);
 
-		throw new \InvalidArgumentException('Invalid URL string.', 0, !empty($e) ? $e : null);
+        if (!is_array($parts)) {
+            throw new InvalidArgumentException($invalidMessage);
+        }
 
-	}
+        try {
+            return self::fromArray($parts);
+        } catch (Throwable $e) {
+            throw new InvalidArgumentException($invalidMessage, 0, $e);
+        }
+    }
 
 
-	/**
-	 * @param [] $array
-	 *
-	 * @return static
-	 * @throws \InvalidArgumentException
-	 */
-	public static function fromArray($values)
-	{
-		try {
-
-			if (empty($values['scheme'])) {
-				throw new \Exception('No scheme provided for the URL.');
-			}
-			if (empty($values['host'])) {
-				throw new \Exception('No host provided for the URL.');
-			}
-
-			$scheme   = new Scheme($values['scheme']);
-			$host     = $values['host'];
-
-			$user     = isset($values['user'])     ? $values['user']                             : null;
-			$pass     = isset($values['pass'])     ? $values['pass']                             : null;
-			$path     = isset($values['path'])     ? new Path($values['path'])                   : null;
-			$port     = isset($values['port'])     ? new PortNumber($values['port'])             : null;
-			$query    = isset($values['query'])    ? new QueryString($values['query'])           : null;
-			$fragment = isset($values['fragment']) ? new FragmentIdentifier($values['fragment']) : null;
-
-			return new static($scheme, $host, $user, $pass, $path, $port, $query, $fragment);
-
-		} catch (\Exception $e) {
-			// Squash.
-		}
-
-		throw new \InvalidArgumentException('Invalid URL array.', 0, !empty($e) ? $e : null);
-
-	}
-
-
-	/**
-     * @return string
+    /**
+     * @param mixed[] $values
      */
-    public function __toString()
+    public static function fromArray(array $values) : self
+    {
+        try {
+            if (empty($values['scheme'])) {
+                throw new InvalidArgumentException('No scheme provided for the URL.');
+            }
+            if (empty($values['host'])) {
+                throw new InvalidArgumentException('No host provided for the URL.');
+            }
+
+            $scheme   = new Scheme($values['scheme']);
+            $host     = $values['host'];
+            $user     = $values['user'] ?? null;
+            $pass     = $values['pass'] ?? null;
+            $path     = isset($values['path']) ? new Path($values['path']) : null;
+            $port     = isset($values['port']) ? new PortNumber($values['port']) : null;
+            $query    = isset($values['query']) ? new QueryString($values['query']) : null;
+            $fragment = isset($values['fragment']) ? new FragmentIdentifier($values['fragment']) : null;
+
+            return new static($scheme, $host, $user, $pass, $path, $port, $query, $fragment);
+        } catch (Throwable $e) {
+            throw new InvalidArgumentException('Invalid URL array.', 0, $e);
+        }
+    }
+
+
+    public function __toString() : string
     {
         return $this->toString();
     }
-    
-    
-    /**
-     * @return string
-     */
-    public function toString()
+
+
+    public function toString() : string
     {
-        if (null !== $this->string) {
+        if ($this->string !== null) {
             return $this->string;
         }
-        
+
         $credentials = '';
-        
+
         if ($this->hasUser()) {
             if ($this->hasPassword()) {
                 $credentials = sprintf('%s:%s@', $this->user(), $this->password());
@@ -197,13 +230,13 @@ class URL
                 $credentials = $this->user() . '@';
             }
         }
-        
+
         $port = '';
-        
+
         if ($this->hasPort()) {
             $port = ':' . $this->port();
         }
-    
+
         return $this->string = sprintf(
             '%s://%s%s%s%s%s%s',
             $this->scheme(),
@@ -215,153 +248,116 @@ class URL
             $this->fragmentIdentifier()
         );
     }
-    
-    
+
+
     /**
      * Determines if this URL starts with another URL.
-     * 
-     * For example "http://example.com/bar/baz" starts with "http", "http://example.com", "http://example.com/bar" etc. 
-     * 
-     * @param URL $other
      *
-     * @return bool
+     * For example "http://example.com/bar/baz" starts with "http", "http://example.com", "http://example.com/bar" etc.
      */
-    public function startsWith(URL $other)
+    public function startsWith(URL $other) : bool
     {
-        return strcasecmp(substr($this, 0, strlen($other)), $other) === 0;
+        $other = $other->toString();
+
+        return strcasecmp(substr($this->toString(), 0, strlen($other)), $other) === 0;
     }
-    
-    
-    /**
-     * @return Scheme
-     */
-    public function scheme()
+
+
+    public function scheme() : Scheme
     {
         return $this->scheme;
     }
-    
-    
-    /**
-     * @return string|null
-     */
-    public function user()
+
+
+    public function user() : ?string
     {
         return $this->user;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function hasUser()
+
+
+    public function hasUser() : bool
     {
-        return null !== $this->user();
+        return $this->user() !== null;
     }
-    
-    
-    /**
-     * @return string|null
-     */
-    public function password()
+
+
+    public function password() : ?string
     {
         return $this->password;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function hasPassword()
+
+
+    public function hasPassword() : bool
     {
-        return null !== $this->password();
+        return $this->password() !== null;
     }
-    
-    
-    /**
-     * @return string
-     */
-    public function host()
+
+
+    public function host() : string
     {
         return $this->host;
     }
 
 
     /**
-     * Makes an educated guess at the subdomain which appears below the hostname.
+     * Makes an educated guess at the sub domain which appears below the hostname.
      *
      * For example, given the URL "http://www.example.com", this will return "www" and given
      * "http://foo.bar.example.com", this will return "foo.bar".
      *
      * There is some support for special second-level domain. For example, given "http://www.example.co.uk", this
      * will return "www", taking into account the ".co.uk" second-level. However this behaviour is not perfect; any
-     * subdomain returned should be considered a best-guess only.
-     *
-     * @return string
+     * sub domain returned should be considered a best-guess only.
      */
-    public function subDomain()
+    public function subDomain() : string
     {
-        $parts = explode('.', $this->host);
-
+        $parts  = explode('.', $this->host);
         $top    = array_pop($parts);
         $second = array_pop($parts);
 
-        if (strlen($second) === 2 || in_array(".$second.$top", self::COUNTRY_SECOND_LEVEL_DOMAINS, true)) {
-            array_pop($parts);
+        if ($second !== null) {
+            $topLevel = sprintf('.%s.%s', $second, $top);
+
+            if (strlen($second) === 2 || in_array($topLevel, self::COUNTRY_SECOND_LEVEL_DOMAINS, true)) {
+                array_pop($parts);
+            }
         }
 
         return implode('.', $parts);
     }
-    
-    
-    /**
-     * @return Path|null
-     */
-    public function path()
+
+
+    public function path() : ?Path
     {
         return $this->path;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function hasPath()
+
+
+    public function hasPath() : bool
     {
-        return null !== $this->path();
+        return $this->path() !== null;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function containsPathTraversal()
+
+
+    public function containsPathTraversal() : bool
     {
         return $this->hasPath() && $this->path()->containsTraversal();
     }
-    
-    
-    /**
-     * @return PortNumber|null
-     */
-    public function port()
+
+
+    public function port() : ?PortNumber
     {
         return $this->port;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function hasPort()
+
+
+    public function hasPort() : bool
     {
-        return null !== $this->port();
+        return $this->port() !== null;
     }
 
 
-    /**
-     * @return static
-     */
-    public function withoutPort()
+    public function withoutPort() : self
     {
         if (!$this->hasPort()) {
             return $this;
@@ -373,36 +369,21 @@ class URL
 
         return $instance;
     }
-    
-    
-    /**
-     * @return QueryString|null
-     */
-    public function queryString()
+
+
+    public function queryString() : ?QueryString
     {
         return $this->queryString;
     }
 
 
-    /**
-     * Determines if the URL contains a query string.
-     *
-     * @return bool
-     */
-    public function hasQueryString()
+    public function hasQueryString() : bool
     {
-        return null !== $this->queryString;
+        return $this->queryString !== null;
     }
-    
-    
-    /**
-     * Returns a version of this URL with the specified query string component.
-     *
-     * @param QueryString $queryString
-     *
-     * @return static
-     */
-    public function withQueryString(QueryString $queryString)
+
+
+    public function withQueryString(QueryString $queryString) : self
     {
         $instance = clone $this;
 
@@ -412,12 +393,7 @@ class URL
     }
 
 
-    /**
-     * Returns a version of this URL with no query string component.
-     *
-     * @return static
-     */
-    public function withoutQueryString()
+    public function withoutQueryString() : self
     {
         if (!$this->hasQueryString()) {
             return $this;
@@ -429,34 +405,21 @@ class URL
 
         return $instance;
     }
-    
-    
-    /**
-     * @return FragmentIdentifier|string
-     */
-    public function fragmentIdentifier()
+
+
+    public function fragmentIdentifier() : ?FragmentIdentifier
     {
         return $this->fragmentIdentifier;
     }
 
 
-    /**
-     * Determines if this URL includes a fragment identifier component.
-     *
-     * @return bool
-     */
-    public function hasFragmentIdentifier()
+    public function hasFragmentIdentifier() : bool
     {
-        return null !== $this->fragmentIdentifier;
+        return $this->fragmentIdentifier !== null;
     }
 
 
-    /**
-     * Returns a version of this URL with no fragment identifier component.
-     *
-     * @return static
-     */
-    public function withoutFragmentIdentifier()
+    public function withoutFragmentIdentifier() : self
     {
         if (!$this->hasFragmentIdentifier()) {
             return $this;
@@ -468,15 +431,10 @@ class URL
 
         return $instance;
     }
-    
-    
-    /**
-     * @param URL $other
-     *
-     * @return bool
-     */
-    public function equals(URL $other)
+
+
+    public function equals(URL $other) : bool
     {
-        return (string)$this === (string)$other;
+        return (string) $this === (string) $other;
     }
 }

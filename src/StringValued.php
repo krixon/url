@@ -1,25 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL;
 
 trait StringValued
 {
     private $value;
-    
-    
-    /**
-     * @return string
-     */
-    public function __toString()
+
+
+    public function __toString() : string
     {
         return $this->toString();
     }
-    
-    
-    /**
-     * @return string
-     */
-    public function toString()
+
+
+    public function toString() : string
     {
         return $this->value;
     }

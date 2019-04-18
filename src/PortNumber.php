@@ -1,56 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL;
+
+use InvalidArgumentException;
+use function sprintf;
 
 class PortNumber
 {
+    private const MIN_PORT = 0;
+    private const MAX_PORT = 65535;
+
     private $number;
-    
-    
-    /**
-     * @param int $value
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($value)
+
+
+    public function __construct(int $value)
     {
-        $options = [
-            'options' => [
-                'min_range' => 0,
-                'max_range' => 65535,
-            ],
-        ];
-        
-        if (!filter_var($value, FILTER_VALIDATE_INT, $options)) {
-            throw new \InvalidArgumentException('Invalid port number.');
+        if ($value < self::MIN_PORT || $value > self::MAX_PORT) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid port number %d. Port must be within range %d - %d.',
+                $value,
+                self::MIN_PORT,
+                self::MAX_PORT
+            ));
         }
 
         $this->number = $value;
     }
-    
-    
-    /**
-     * @return string
-     */
-    public function __toString()
+
+
+    public function __toString() : string
     {
         return $this->toString();
     }
-    
-    
-    /**
-     * @return string
-     */
-    public function toString()
+
+
+    public function toString() : string
     {
-        return (string)$this->toInt();
+        return (string) $this->toInt();
     }
-    
-    
-    /**
-     * @return int
-     */
-    public function toInt()
+
+
+    public function toInt() : int
     {
         return $this->number;
     }

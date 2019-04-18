@@ -1,77 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL;
+
+use InvalidArgumentException;
+use function array_combine;
+use function array_keys;
+use function array_map;
+use function bin2hex;
+use function http_build_query;
+use function ltrim;
+use function parse_str;
+use function preg_match;
+use function preg_replace_callback;
+use function urldecode;
 
 class QueryString
 {
     use StringValued;
-    
-    
-    /**
-     * @param string $value
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($value)
+
+    public function __construct(string $value)
     {
         $value = '?' . ltrim($value, '?');
-        
+
         if (!preg_match('/^\?([\w\.\-\[\]~&%+?]+(=([\w\.\-~&%+?]+)?)?)*$/', $value)) {
-            throw new \InvalidArgumentException('Invalid query string.');
+            throw new InvalidArgumentException('Invalid query string.');
         }
-        
+
         $this->value = $value;
     }
-    
-    
+
+
     /**
-     * @param array $parameters
-     *
-     * @return static
+     * @param mixed[] $parameters
      */
-    public static function fromArray(array $parameters)
+    public static function fromArray(array $parameters) : self
     {
-        return new static('?' . http_build_query($parameters, '', '&'));
+        return new self('?' . http_build_query($parameters, '', '&'));
     }
-    
-    
+
+
     /**
      * @return string[]
      */
-    public function toArray()
+    public function toArray() : array
     {
         $parameters = [];
 
         $value = ltrim($this->toString(), '?');
 
-        // Convert all the parameter keys into their respective hex values so that dots and spaces won't be converted into
-        // underscores by the native parse_str function.
-        $queryString = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function ($match) {
+        // Convert all the parameter keys into their respective hex values so that dots and spaces won't be converted
+        // into underscores by the native parse_str function.
+        $queryString = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', static function ($match) {
             return bin2hex(urldecode($match[0]));
         }, $value);
 
         parse_str($queryString, $parameters);
 
-        // Convert all the keys back from to their original form.
+        // Convert all the keys back to their original form.
         $keys = array_map('hex2bin', array_keys($parameters));
 
         return array_combine($keys, $parameters);
     }
 
 
-    /**
-     * Returns a new instance which includes the specified parameter.
-     *
-     * @param string $parameter
-     * @param string $value
-     *
-     * @return static
-     */
-    public function withAddedParameter(string $parameter, string $value)
+    public function withAddedParameter(string $parameter, string $value) : self
     {
         $string  = $this->value;
         $string .= '&' . http_build_query([$parameter => $value], '', '&');
 
-        return new static(ltrim($string, '&'));
+        return new self(ltrim($string, '&'));
     }
 }
