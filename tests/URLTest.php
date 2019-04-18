@@ -1,27 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL\Test\URL;
 
+use InvalidArgumentException;
 use Krixon\URL\URL;
+use PHPUnit\Framework\TestCase;
+use function sprintf;
 
-class URLTest extends \PHPUnit_Framework_TestCase
+class URLTest extends TestCase
 {
     /**
-     * @param $string
-     *
      * @dataProvider validURLStringProvider
      */
-    public function testCanCreateInstanceFromString($string)
+    public function testCanCreateInstanceFromString(string $string) : void
     {
         try {
             $this->assertInstanceOf(URL::class, URL::fromString($string));
-        } catch (\InvalidArgumentException $e) {
-            $this->fail("Cannot create URL instance from '$string': " . $e->getMessage());
+        } catch (InvalidArgumentException $e) {
+            $this->fail(sprintf("Cannot create URL instance from '%s': ", $string) . $e->getMessage());
         }
     }
 
 
-    public function validURLStringProvider()
+    /**
+     * @return mixed[]
+     */
+    public function validURLStringProvider() : array
     {
         return [
             ['http://www.example.com/some/path?foo=bar#baz'],
@@ -30,12 +36,9 @@ class URLTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @param string $url
-     * @param string $expected
-     *
      * @dataProvider subDomainProvider
      */
-    public function testCanExtractSubDomain($url, $expected)
+    public function testCanExtractSubDomain(string $url, string $expected) : void
     {
         $url = URL::fromString($url);
 
@@ -43,7 +46,10 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function subDomainProvider()
+    /**
+     * @return mixed[]
+     */
+    public function subDomainProvider() : array
     {
         return [
             'One sub-domain' => [
@@ -83,11 +89,9 @@ class URLTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @param $string
-     *
      * @dataProvider validURLStringProvider
      */
-    public function testCanConvertToString($string)
+    public function testCanConvertToString(string $string) : void
     {
         $url = URL::fromString($string);
 
@@ -95,7 +99,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testCanRemoveQueryString()
+    public function testCanRemoveQueryString() : void
     {
         $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
         $removed  = $url->withoutQueryString();
@@ -110,7 +114,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testCanRemoveFragmentIdentifier()
+    public function testCanRemoveFragmentIdentifier() : void
     {
         $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
         $removed  = $url->withoutFragmentIdentifier();
@@ -125,7 +129,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testCanRemovePort()
+    public function testCanRemovePort() : void
     {
         $url      = URL::fromString('http://foo.example.com:80?foo=bar&bar=baz#foo');
         $removed  = $url->withoutPort();

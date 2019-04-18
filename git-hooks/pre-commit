@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Source: https://gist.github.com/nmicht/b7e8878ba84ff36784f623f82b09d9fa
+
+STAGED_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep ^src/.*.php`
+
+FILES=${SFILES:-$STAGED_FILES_CMD}
+
+if [ "$FILES" != "" ]
+then
+
+    echo -e "\033[0;32m"Running Code Sniffer..."\033[0m"
+    ./vendor/bin/phpcs --encoding=utf-8 -n -p $FILES
+
+    if [ $? != 0 ]
+    then
+        echo -e "\033[41m"Fix errors before committing."\033[0m"
+        exit 1
+    fi
+fi
+
+exit $?

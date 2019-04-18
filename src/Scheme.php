@@ -1,60 +1,46 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL;
+
+use InvalidArgumentException;
+use function preg_match;
+use function strtolower;
 
 class Scheme
 {
     use StringValued;
-    
-    
-    /**
-     * @param string $value
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($value)
+
+    public function __construct(string $value)
     {
         if (!preg_match('/^[a-z]([a-z0-9\+\.-]+)?$/i', $value)) {
-            throw new \InvalidArgumentException('Invalid scheme.');
+            throw new InvalidArgumentException('Invalid scheme.');
         }
-        
+
         $this->value = strtolower($value);
     }
-    
-    
-    /**
-     * @param string $scheme
-     *
-     * @return bool
-     */
-    public function is($scheme)
+
+
+    public function is(string $scheme) : bool
     {
         return $this->toString() === $scheme;
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function isHTTP()
+
+
+    public function isHTTP() : bool
     {
         return $this->is('http');
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function isHTTPS()
+
+
+    public function isHTTPS() : bool
     {
         return $this->is('https');
     }
-    
-    
-    /**
-     * @return bool
-     */
-    public function isFTP()
+
+
+    public function isFTP() : bool
     {
         return $this->is('ftp');
     }

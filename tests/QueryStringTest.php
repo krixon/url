@@ -1,27 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Krixon\URL\Test\URL;
 
+use InvalidArgumentException;
 use Krixon\URL\QueryString;
+use PHPUnit\Framework\TestCase;
+use function sprintf;
 
-class QueryStringTest extends \PHPUnit_Framework_TestCase
+class QueryStringTest extends TestCase
 {
     /**
-     * @param $string
-     * 
      * @dataProvider validQueryStringProvider
      */
-    public function testCanCreateInstance($string)
+    public function testCanCreateInstance(string $string) : void
     {
         try {
             $this->assertInstanceOf(QueryString::class, new QueryString($string));
-        } catch (\InvalidArgumentException $e) {
-            $this->fail("Cannot create query string instance from '$string'.");
+        } catch (InvalidArgumentException $e) {
+            $this->fail(sprintf("Cannot create query string instance from '%s'.", $string));
         }
     }
-    
-    
-    public function validQueryStringProvider()
+
+
+    /**
+     * @return mixed[]
+     */
+    public function validQueryStringProvider() : array
     {
         return [
             ['foo=bar'],
@@ -35,14 +41,9 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @param string $original
-     * @param string $parameter
-     * @param string $value
-     * @param string $expected
-     *
      * @dataProvider withAddedParameterProvider
      */
-    public function testWithAddedParameter(string $original, string $parameter, string $value, string $expected)
+    public function testWithAddedParameter(string $original, string $parameter, string $value, string $expected) : void
     {
         $original = new QueryString($original);
         $new      = $original->withAddedParameter($parameter, $value);
@@ -51,7 +52,10 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function withAddedParameterProvider()
+    /**
+     * @return mixed[]
+     */
+    public function withAddedParameterProvider() : array
     {
         return [
             ['?foo=bar', 'name', 'lister', '?foo=bar&name=lister'],
@@ -61,9 +65,11 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
 
 
     /**
+     * @param string[] $expected
+     *
      * @dataProvider canBeCastToArrayExpectationsProvider
      */
-    public function testCanBeCastToArray(string $queryString, array $expected)
+    public function testCanBeCastToArray(string $queryString, array $expected) : void
     {
         $queryString = new QueryString($queryString);
 
@@ -71,6 +77,9 @@ class QueryStringTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    /**
+     * @return mixed[]
+     */
     public function canBeCastToArrayExpectationsProvider() : array
     {
         return [
