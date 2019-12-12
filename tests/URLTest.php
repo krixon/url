@@ -78,6 +78,14 @@ class URLTest extends \PHPUnit_Framework_TestCase
                 'http://example.com',
                 '',
             ],
+            'IP V4 - no subdomain' => [
+                'http://10.0.0.1',
+                '',
+            ],
+            'IP V4 with path - no subdomain' => [
+                'http://10.0.0.1/myapp/dashboard',
+                '',
+            ],
         ];
     }
 
