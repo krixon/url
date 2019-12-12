@@ -114,15 +114,9 @@ class URL
 	public static function fromString($string)
 	{
 		try {
-
-			if (
-				(filter_var($string, FILTER_VALIDATE_URL,
-						FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED) !== false) &&
-				($values = parse_url($string))
-			) {
-				return self::fromArray($values);
-			}
-
+            if ($values = parse_url($string)) {
+                return self::fromArray($values);
+            }
 		} catch (\Exception $e) {
 			// Squash.
 		}
@@ -143,10 +137,11 @@ class URL
 		try {
 
 			if (empty($values['scheme'])) {
-				throw new \Exception('No scheme provided for the URL.');
+				throw new \InvalidArgumentException('No scheme provided for the URL.');
 			}
+
 			if (empty($values['host'])) {
-				throw new \Exception('No host provided for the URL.');
+				throw new \InvalidArgumentException('No host provided for the URL.');
 			}
 
 			$scheme   = new Scheme($values['scheme']);
