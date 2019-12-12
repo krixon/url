@@ -296,10 +296,16 @@ class URL
      * will return "www", taking into account the ".co.uk" second-level. However this behaviour is not perfect; any
      * subdomain returned should be considered a best-guess only.
      *
+     * If no subdomain can be detected, this will return an empty string.
+     *
      * @return string
      */
     public function subDomain()
     {
+        if ($this->isHostIp()) {
+            return '';
+        }
+
         $parts = explode('.', $this->host);
 
         $top    = array_pop($parts);
@@ -478,5 +484,11 @@ class URL
     public function equals(URL $other)
     {
         return (string)$this === (string)$other;
+    }
+
+
+    private function isHostIp()
+    {
+        return (bool) filter_var($this->host, FILTER_VALIDATE_IP);
     }
 }
